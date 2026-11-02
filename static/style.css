@@ -1,0 +1,420 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    min-height: 100vh;
+    padding: 30px 15px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.logo {
+    font-size: 45px;
+}
+
+header h1 {
+    font-size: 30px;
+    color: #222;
+}
+
+header p {
+    color: #666;
+    margin-top: 5px;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+
+/* TABS */
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.tab {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #eef1f5;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.tab.active {
+    background: #222;
+    color: white;
+}
+
+
+/* UPLOAD */
+
+.upload-box {
+    border: 2px dashed #bbb;
+    border-radius: 15px;
+    padding: 40px 20px;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.upload-box.dragover {
+    border-color: #222;
+    background: #f4f4f4;
+}
+
+.upload-icon {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+.upload-box h2 {
+    margin-bottom: 10px;
+}
+
+.upload-box p {
+    color: #777;
+    margin: 7px;
+}
+
+.choose-btn {
+    display: inline-block;
+    background: #222;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.file-name {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #333 !important;
+}
+
+
+/* VIDEO */
+
+.video-preview {
+    width: 100%;
+    max-height: 400px;
+    margin-top: 20px;
+    border-radius: 12px;
+    display: none;
+    background: black;
+}
+
+
+/* CAMERA */
+
+.camera-box {
+    text-align: center;
+}
+
+#cameraPreview {
+    width: 100%;
+    max-height: 450px;
+    border-radius: 15px;
+    background: #111;
+    object-fit: cover;
+}
+
+.camera-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.camera-btn,
+.record-btn,
+.stop-btn {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.camera-btn {
+    background: #222;
+    color: white;
+}
+
+.record-btn {
+    background: #d62828;
+    color: white;
+}
+
+.stop-btn {
+    background: #555;
+    color: white;
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+#recordStatus {
+    margin-top: 15px;
+    color: #666;
+}
+
+
+/* RECOGNIZE */
+
+.recognize-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #222;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.recognize-btn:hover {
+    opacity: 0.9;
+}
+
+
+/* LOADING */
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 30px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid #222;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: auto auto 15px;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* RESULT */
+
+.result {
+    display: none;
+    margin-top: 30px;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.result-header h2 {
+    color: #222;
+}
+
+.confidence {
+    background: #e8f5e9;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.language-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.language-card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.language-card span {
+    display: block;
+    color: #777;
+    margin-bottom: 8px;
+}
+
+.language-card strong {
+    font-size: 20px;
+    color: #222;
+}
+
+.reset-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+/* ERROR */
+
+.error {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background: #ffe5e5;
+    color: #b00020;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    header h1 {
+        font-size: 23px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .language-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tabs {
+        flex-direction: column;
+    }
+}
+/* WORD TO SIGN */
+
+.word-sign-box {
+    text-align: center;
+}
+
+.word-sign-box h2 {
+    margin-bottom: 10px;
+}
+
+.word-sign-box > p {
+    color: #777;
+    margin-bottom: 25px;
+}
+
+.language-select {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.language-select label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+.language-select select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background: white;
+}
+
+#wordInput {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 9px;
+    font-size: 17px;
+    outline: none;
+}
+
+#wordInput:focus {
+    border-color: #222;
+}
+
+.word-sign-result {
+    display: none;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.word-sign-result h2 {
+    margin-bottom: 8px;
+}
+
+.gloss-text {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.sign-video-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.sign-video-card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 10px;
+    background: #fafafa;
+}
+
+.sign-video-card video {
+    width: 100%;
+    border-radius: 8px;
+    background: black;
+}
+
+.sign-video-card p {
+    text-align: center;
+    margin-top: 8px;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+
+    .sign-video-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

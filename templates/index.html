@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Powered Sign Language Gloss Conversion</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        header {
+            background: #1f3c88;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            font-size: 15px;
+        }
+
+        nav {
+            background: #162d68;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 15px;
+        }
+
+        nav button:hover,
+        nav button.active {
+            background: #3156a6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #1f3c88;
+        }
+
+        .upload-box {
+            border: 2px dashed #8da5d6;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        input[type="file"] {
+            margin: 15px 0;
+        }
+
+        button.primary {
+            background: #1f3c88;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button.primary:hover {
+            background: #162d68;
+        }
+
+        button.secondary {
+            background: #5c677d;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button.success {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button.danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        video {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 15px;
+            background: black;
+        }
+
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #eef3ff;
+            display: none;
+        }
+
+        .result-box h3 {
+            margin-top: 0;
+            color: #1f3c88;
+        }
+
+        .language-result {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #1f3c88;
+        }
+
+        .confidence {
+            font-weight: bold;
+            color: #198754;
+        }
+
+        .error {
+            background: #ffe6e6;
+            color: #b00020;
+            padding: 12px;
+            border-radius: 7px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 4px solid #ddd;
+            border-top: 4px solid #1f3c88;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .word-result {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .sign-video-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        footer {
+            background: #162d68;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 600px) {
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                padding: 0 10px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>AI Powered Sign Language Gloss Conversion System</h1>
+
+    <p>
+        Real-Time Multilingual Sign Language Recognition
+    </p>
+
+</header>
+
+
+<nav>
+
+    <button class="active"
+            onclick="showSection('home', this)">
+        Home
+    </button>
+
+    <button onclick="showSection('upload', this)">
+        Video Upload
+    </button>
+
+    <button onclick="showSection('camera', this)">
+        Camera
+    </button>
+
+    <button onclick="showSection('wordToSign', this)">
+        Word to Sign
+    </button>
+
+</nav>
+
+
+<div class="container">
+
+
+    <!-- ===================================== -->
+    <!-- HOME -->
+    <!-- ===================================== -->
+
+    <section id="home"
+             class="section active">
+
+        <div class="card">
+
+            <h2>AI Powered Sign Language Gloss Conversion</h2>
+
+            <p>
+                This system recognizes sign language gestures from
+                video and converts them into gloss words.
+            </p>
+
+            <p>
+                The recognized gloss can then be translated into
+                multiple Indian languages and converted into speech.
+            </p>
+
+            <div class="language-grid">
+
+                <div class="language-result">
+                    <strong>English</strong>
+                    <p>Recognized gloss and translation</p>
+                </div>
+
+                <div class="language-result">
+                    <strong>Tamil</strong>
+                    <p>தமிழ் மொழிபெயர்ப்பு</p>
+                </div>
+
+                <div class="language-result">
+                    <strong>Telugu</strong>
+                    <p>తెలుగు అనువాదం</p>
+                </div>
+
+                <div class="language-result">
+                    <strong>Kannada</strong>
+                    <p>ಕನ್ನಡ ಅನುವಾದ</p>
+                </div>
+
+                <div class="language-result">
+                    <strong>Malayalam</strong>
+                    <p>മലയാളം വിവർത്തനം</p>
+                </div>
+
+                <div class="language-result">
+                    <strong>Hindi</strong>
+                    <p>हिंदी अनुवाद</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- VIDEO UPLOAD -->
+    <!-- ===================================== -->
+
+    <section id="upload"
+             class="section">
+
+        <div class="card">
+
+            <h2>Upload Sign Language Video</h2>
+
+            <div class="upload-box">
+
+                <p>
+                    Select a sign language video for prediction.
+                </p>
+
+                <input
+                    type="file"
+                    id="videoInput"
+                    accept="video/*"
+                    onchange="handleFileSelect(event)"
+                >
+
+                <br>
+
+                <button
+                    class="primary"
+                    onclick="predictUploadedVideo()">
+                    Predict Sign
+                </button>
+
+            </div>
+
+
+            <div id="selectedFileName"
+                 style="margin-top:15px;">
+            </div>
+
+
+            <video
+                id="uploadPreview"
+                controls
+                style="display:none;">
+            </video>
+
+
+            <div id="uploadError"
+                 class="error">
+            </div>
+
+
+            <div id="uploadLoading"
+                 class="loading">
+
+                <div class="spinner"></div>
+
+                <p>
+                    Processing video...
+                </p>
+
+            </div>
+
+
+            <div id="uploadResult"
+                 class="result-box">
+
+                <h3>Prediction Result</h3>
+
+                <div class="language-result">
+
+                    <strong>Gloss:</strong>
+
+                    <span id="uploadGloss"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Confidence:</strong>
+
+                    <span
+                        id="uploadConfidence"
+                        class="confidence">
+                    </span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>English:</strong>
+
+                    <span id="uploadEnglish"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Tamil:</strong>
+
+                    <span id="uploadTamil"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Telugu:</strong>
+
+                    <span id="uploadTelugu"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Kannada:</strong>
+
+                    <span id="uploadKannada"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Malayalam:</strong>
+
+                    <span id="uploadMalayalam"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Hindi:</strong>
+
+                    <span id="uploadHindi"></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- CAMERA -->
+    <!-- ===================================== -->
+
+    <section id="camera"
+             class="section">
+
+        <div class="card">
+
+            <h2>Live Camera Recognition</h2>
+
+            <p>
+                Use your webcam to record a sign language gesture.
+            </p>
+
+
+            <video
+                id="cameraPreview"
+                autoplay
+                playsinline
+                muted
+                style="width:100%; max-height:500px;">
+            </video>
+
+
+            <video
+                id="recordedPreview"
+                controls
+                style="display:none; width:100%; max-height:500px;">
+            </video>
+
+
+            <div class="camera-controls">
+
+                <button
+                    id="startCameraBtn"
+                    class="primary"
+                    onclick="startCamera()">
+                    Start Camera
+                </button>
+
+                <button
+                    id="stopCameraBtn"
+                    class="danger"
+                    onclick="stopCamera()"
+                    style="display:none;">
+                    Stop Camera
+                </button>
+
+                <button
+                    id="recordBtn"
+                    class="success"
+                    onclick="startRecording()"
+                    style="display:none;">
+                    Start Recording
+                </button>
+
+                <button
+                    id="stopRecordBtn"
+                    class="danger"
+                    onclick="stopRecording()"
+                    style="display:none;">
+                    Stop Recording
+                </button>
+
+            </div>
+
+
+            <div id="cameraError"
+                 class="error">
+            </div>
+
+
+            <div id="cameraLoading"
+                 class="loading">
+
+                <div class="spinner"></div>
+
+                <p>
+                    Processing camera video...
+                </p>
+
+            </div>
+
+
+            <div id="cameraResult"
+                 class="result-box">
+
+                <h3>Prediction Result</h3>
+
+                <div class="language-result">
+
+                    <strong>Gloss:</strong>
+
+                    <span id="cameraGloss"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Confidence:</strong>
+
+                    <span
+                        id="cameraConfidence"
+                        class="confidence">
+                    </span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>English:</strong>
+
+                    <span id="cameraEnglish"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Tamil:</strong>
+
+                    <span id="cameraTamil"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Telugu:</strong>
+
+                    <span id="cameraTelugu"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Kannada:</strong>
+
+                    <span id="cameraKannada"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Malayalam:</strong>
+
+                    <span id="cameraMalayalam"></span>
+
+                </div>
+
+                <div class="language-result">
+
+                    <strong>Hindi:</strong>
+
+                    <span id="cameraHindi"></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- WORD TO SIGN -->
+    <!-- ===================================== -->
+
+    <section id="wordToSign"
+             class="section">
+
+        <div class="card">
+
+            <h2>Word to Sign</h2>
+
+            <div class="form-group">
+
+                <label for="wordInput">
+                    Enter a word
+                </label>
+
+                <div style="display:flex; gap:10px;">
+
+                    <input
+                        type="text"
+                        id="wordInput"
+                        placeholder="Enter word"
+                        style="flex:1;"
+                    >
+
+                    <button
+                        type="button"
+                        class="secondary"
+                        onclick="startVoiceInput()">
+                        🎤 Speak
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="inputLanguage">
+                    Language
+                </label>
+
+                <select id="inputLanguage">
+
+                    <option value="english">
+                        English
+                    </option>
+
+                    <option value="tamil">
+                        Tamil
+                    </option>
+
+                    <option value="telugu">
+                        Telugu
+                    </option>
+
+                    <option value="kannada">
+                        Kannada
+                    </option>
+
+                    <option value="malayalam">
+                        Malayalam
+                    </option>
+
+                    <option value="hindi">
+                        Hindi
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button
+                class="primary"
+                onclick="findSign()">
+                Find Sign
+            </button>
+
+
+            <div id="wordSignError"
+                 class="error">
+            </div>
+
+
+            <div id="wordSignResult"
+                 class="word-result">
+
+                <h3>Available Sign Videos</h3>
+
+                <div id="signVideos">
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<footer>
+
+    <p>
+        AI Powered Sign Language Gloss Conversion System
+    </p>
+
+</footer>
+
+
+<script>
+
+    /* ===================================== */
+    /* GLOBAL VARIABLES */
+    /* ===================================== */
+
+    let selectedFile = null;
+    let mediaStream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+
+
+    /* ===================================== */
+    /* SECTION NAVIGATION */
+    /* ===================================== */
+
+    function showSection(sectionId, button) {
+
+        const sections =
+            document.querySelectorAll(".section");
+
+        sections.forEach(function(section) {
+
+            section.classList.remove("active");
+
+        });
+
+
+        const selectedSection =
+            document.getElementById(sectionId);
+
+        if (selectedSection) {
+
+            selectedSection.classList.add("active");
+
+        }
+
+
+        const buttons =
+            document.querySelectorAll("nav button");
+
+        buttons.forEach(function(btn) {
+
+            btn.classList.remove("active");
+
+        });
+
+
+        if (button) {
+
+            button.classList.add("active");
+
+        }
+
+
+        if (sectionId !== "camera") {
+
+            stopCamera();
+
+        }
+
+    }
+
+
+    /* ===================================== */
+    /* ERROR HELPERS */
+    /* ===================================== */
+
+    function showError(message) {
+
+        const cameraError =
+            document.getElementById("cameraError");
+
+        const uploadError =
+            document.getElementById("uploadError");
+
+        if (cameraError) {
+
+            cameraError.innerText = message;
+            cameraError.style.display = "block";
+
+        }
+
+        if (uploadError) {
+
+            uploadError.innerText = message;
+            uploadError.style.display = "block";
+
+        }
+
+    }
+
+
+    function hideError() {
+
+        const cameraError =
+            document.getElementById("cameraError");
+
+        const uploadError =
+            document.getElementById("uploadError");
+
+        if (cameraError) {
+
+            cameraError.style.display = "none";
+
+        }
+
+        if (uploadError) {
+
+            uploadError.style.display = "none";
+
+        }
+
+    }
+
+
+    /* ===================================== */
+    /* FILE SELECTION */
+    /* ===================================== */
+
+    function handleFileSelect(event) {
+
+        const file =
+            event.target.files[0];
+
+        if (!file) {
+
+            selectedFile = null;
+            return;
+
+        }
+
+        selectedFile = file;
+
+
+        const fileName =
+            document.getElementById(
+                "selectedFileName"
+            );
+
+        if (fileName) {
+
+            fileName.innerText =
+                "Selected file: " + file.name;
+
+        }
+
+
+        const preview =
+            document.getElementById(
+                "uploadPreview"
+            );
+
+        if (preview) {
+
+            const url =
+                URL.createObjectURL(file);
+
+            preview.src = url;
+            preview.style.display = "block";
+
+        }
+
+
+        const result =
+            document.getElementById(
+                "uploadResult"
+            );
+
+        if (result) {
+
+            result.style.display = "none";
+
+        }
+
+    }
+
+
+    /* ===================================== */
+    /* UPLOAD VIDEO PREDICTION */
+    /* ===================================== */
+
+    function predictUploadedVideo() {
+
+        if (!selectedFile) {
+
+            const error =
+                document.getElementById(
+                    "uploadError"
+                );
+
+            error.innerText =
+                "⚠ Please select a video first.";
+
+            error.style.display = "block";
+
+            return;
+
+        }
+
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "video",
+            selectedFile,
+            selectedFile.name
+        );
+
+
+        sendVideoToServer(
+            formData,
+            "upload"
+        );
+
+    }
+
+
+    /* ===================================== */
+    /* SEND VIDEO TO SERVER */
+    /* ===================================== */
+
+    async function sendVideoToServer(
+        formData,
+        source = "camera"
+    ) {
+
+        hideError();
+
+
+        const loading =
+            document.getElementById(
+                source === "camera"
+                    ? "cameraLoading"
+                    : "uploadLoading"
+            );
+
+        if (loading) {
+
+            loading.style.display = "block";
+
+        }
+
+
+        const result =
+            document.getElementById(
+                source === "camera"
+                    ? "cameraResult"
+                    : "uploadResult"
+            );
+
+        if (result) {
+
+            result.style.display = "none";
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/predict",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Could not process video"
+                );
+
+            }
+
+
+            if (source === "camera") {
+
+                displayCameraResult(data);
+
+            }
+            else {
+
+                displayUploadResult(data);
+
+            }
+
+        }
+        catch (error) {
+
+            console.error(
+                "Prediction error:",
+                error
+            );
+
+
+            const errorElement =
+                document.getElementById(
+                    source === "camera"
+                        ? "cameraError"
+                        : "uploadError"
+                );
+
+
+            if (errorElement) {
+
+                errorElement.innerText =
+                    "⚠ " +
+                    (
+                        error.message ||
+                        "Could not process video"
+                    );
+
+                errorElement.style.display =
+                    "block";
+
+            }
+
+        }
+        finally {
+
+            if (loading) {
+
+                loading.style.display =
+                    "none";
+
+            }
+
+        }
+
+    }
+
+
+    /* ===================================== */
+    /* TEXT TO SPEECH */
+    /* ===================================== */
+
+    async function playTTS(text, language) {
+
+        if (!text || text === "-") {
+            return;
+        }
+
+        try {
+
+            const response =
+                await fetch(
+                    "/tts",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            language: language
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Could not generate audio"
+                );
+
+            }
+
+
+            const audio =
+                new Audio(data.audio);
+
+            audio.volume = 1.0;
+
+            await audio.play();
+
+        }
+        catch (error) {
+
+            console.error(
+                "TTS error:",
+                error
+            );
+
+            alert(
+                "Could not play audio: " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    /* ===================================== */
+    /* ADD AUDIO BUTTON */
+    /* ===================================== */
+
+    function addAudioButton(
+        elementId,
+        text,
+        language
+    ) {
+
+        const element =
+            document.getElementById(elementId);
+
+        if (!element) {
+            return;
+        }
+
+
+        const oldButton =
+            element.parentElement.querySelector(
+                ".audio-button"
+            );
+
+        if (oldButton) {
+            oldButton.remove();
+        }
+
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            "audio-button";
+
+        button.innerText =
+            "🔊 Play";
+
+        button.style.marginLeft =
+            "10px";
+
+        button.style.padding =
+            "5px 10px";
+
+        button.style.border =
+            "none";
+
+        button.style.borderRadius =
+            "5px";
+
+        button.style.cursor =
+            "pointer";
+
+        button.style.background =
+            "#1f3c88";
+
+        button.style.color =
+            "white";
+
+
+        button.onclick =
+            function() {
+
+                playTTS(
+                    text,
+                    language
+                );
+
+            };
+
+
+        element.parentElement.appendChild(
+            button
+        );
+
+    }
+
+
+    /* ===================================== */
+    /* DISPLAY UPLOAD RESULT */
+    /* ===================================== */
+
+    function displayUploadResult(data) {
+
+        document.getElementById(
+            "uploadGloss"
+        ).innerText =
+            data.gloss || "-";
+
+
+        document.getElementById(
+            "uploadConfidence"
+        ).innerText =
+            data.confidence !== undefined
+                ? Number(data.confidence).toFixed(2) + "%"
+                : "-";
+
+
+        document.getElementById(
+            "uploadEnglish"
+        ).innerText =
+            data.english || "-";
+
+
+        document.getElementById(
+            "uploadTamil"
+        ).innerText =
+            data.tamil || "-";
+
+
+        document.getElementById(
+            "uploadTelugu"
+        ).innerText =
+            data.telugu || "-";
+
+
+        document.getElementById(
+            "uploadKannada"
+        ).innerText =
+            data.kannada || "-";
+
+
+        document.getElementById(
+            "uploadMalayalam"
+        ).innerText =
+            data.malayalam || "-";
+
+
+        document.getElementById(
+            "uploadHindi"
+        ).innerText =
+            data.hindi || "-";
+
+
+        addAudioButton(
+            "uploadEnglish",
+            data.english,
+            "english"
+        );
+
+        addAudioButton(
+            "uploadTamil",
+            data.tamil,
+            "tamil"
+        );
+
+        addAudioButton(
+            "uploadTelugu",
+            data.telugu,
+            "telugu"
+        );
+
+        addAudioButton(
+            "uploadKannada",
+            data.kannada,
+            "kannada"
+        );
+
+        addAudioButton(
+            "uploadMalayalam",
+            data.malayalam,
+            "malayalam"
+        );
+
+        addAudioButton(
+            "uploadHindi",
+            data.hindi,
+            "hindi"
+        );
+
+
+        document.getElementById(
+            "uploadResult"
+        ).style.display =
+            "block";
+
+    }
+
+
+    /* ===================================== */
+    /* DISPLAY CAMERA RESULT */
+    /* ===================================== */
+
+    function displayCameraResult(data) {
+
+        document.getElementById(
+            "cameraGloss"
+        ).innerText =
+            data.gloss || "-";
+
+
+        document.getElementById(
+            "cameraConfidence"
+        ).innerText =
+            data.confidence !== undefined
+                ? Number(data.confidence).toFixed(2) + "%"
+                : "-";
+
+
+        document.getElementById(
+            "cameraEnglish"
+        ).innerText =
+            data.english || "-";
+
+
+        document.getElementById(
+            "cameraTamil"
+        ).innerText =
+            data.tamil || "-";
+
+
+        document.getElementById(
+            "cameraTelugu"
+        ).innerText =
+            data.telugu || "-";
+
+
+        document.getElementById(
+            "cameraKannada"
+        ).innerText =
+            data.kannada || "-";
+
+
+        document.getElementById(
+            "cameraMalayalam"
+        ).innerText =
+            data.malayalam || "-";
+
+
+        document.getElementById(
+            "cameraHindi"
+        ).innerText =
+            data.hindi || "-";
+
+
+        addAudioButton(
+            "cameraEnglish",
+            data.english,
+            "english"
+        );
+
+        addAudioButton(
+            "cameraTamil",
+            data.tamil,
+            "tamil"
+        );
+
+        addAudioButton(
+            "cameraTelugu",
+            data.telugu,
+            "telugu"
+        );
+
+        addAudioButton(
+            "cameraKannada",
+            data.kannada,
+            "kannada"
+        );
+
+        addAudioButton(
+            "cameraMalayalam",
+            data.malayalam,
+            "malayalam"
+        );
+
+        addAudioButton(
+            "cameraHindi",
+            data.hindi,
+            "hindi"
+        );
+
+
+        document.getElementById(
+            "cameraResult"
+        ).style.display =
+            "block";
+
+    }
+
+
+    /* ===================================== */
+    /* STOP CAMERA */
+    /* ===================================== */
+
+    function stopCamera() {
+
+        if (
+            mediaRecorder &&
+            mediaRecorder.state !== "inactive"
+        ) {
+
+            mediaRecorder.stop();
+
+        }
+
+
+        if (mediaStream) {
+
+            mediaStream
+                .getTracks()
+                .forEach(function(track) {
+
+                    track.stop();
+
+                });
+
+        }
+
+
+        mediaStream = null;
+        mediaRecorder = null;
+
+
+        const cameraPreview =
+            document.getElementById(
+                "cameraPreview"
+            );
+
+        if (cameraPreview) {
+
+            cameraPreview.srcObject = null;
+
+        }
+
+
+        const startCameraBtn =
+            document.getElementById(
+                "startCameraBtn"
+            );
+
+        const stopCameraBtn =
+            document.getElementById(
+                "stopCameraBtn"
+            );
+
+        const recordBtn =
+            document.getElementById(
+                "recordBtn"
+            );
+
+        const stopRecordBtn =
+            document.getElementById(
+                "stopRecordBtn"
+            );
+
+
+        if (startCameraBtn) {
+            startCameraBtn.style.display =
+                "inline-block";
+        }
+
+        if (stopCameraBtn) {
+            stopCameraBtn.style.display =
+                "none";
+        }
+
+        if (recordBtn) {
+            recordBtn.style.display =
+                "none";
+        }
+
+        if (stopRecordBtn) {
+            stopRecordBtn.style.display =
+                "none";
+        }
+
+    }
+
+
+    /* ===================================== */
+    /* START CAMERA */
+    /* ===================================== */
+
+    async function startCamera() {
+
+        try {
+
+            mediaStream =
+                await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+
+
+            const cameraPreview =
+                document.getElementById(
+                    "cameraPreview"
+                );
+
+            cameraPreview.srcObject =
+                mediaStream;
+
+
+            document.getElementById(
+                "startCameraBtn"
+            ).style.display =
+                "none";
+
+            document.getElementById(
+                "stopCameraBtn"
+            ).style.display =
+                "inline-block";
+
+            document.getElementById(
+                "recordBtn"
+            ).style.display =
+                "inline-block";
+
+            hideError();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Camera error:",
+                error
+            );
+
+            showError(
+                "⚠ Could not access camera. Please allow camera permission."
+            );
+
+        }
+
+    }
+
+
+    /* ===================================== */
+    /* START RECORDING */
+    /* ===================================== */
+
+    function startRecording() {
+
+        if (!mediaStream) {
+
+            showError(
+                "⚠ Please start the camera first."
+            );
+
+            return;
+
+        }
+
+
+        recordedChunks = [];
+
+        let mimeType = "";
+
+
+        if (
+            MediaRecorder.isTypeSupported(
+                "video/webm;codecs=vp8"
+            )
+        ) {
+
+            mimeType =
+                "video/webm;codecs=vp8";
+
+        }
+        else if (
+            MediaRecorder.isTypeSupported(
+                "video/webm"
+            )
+        ) {
+
+            mimeType =
+                "video/webm";
+
+        }
+        else if (
+            MediaRecorder.isTypeSupported(
+                "video/mp4"
+            )
+        ) {
+
+            mimeType =
+                "video/mp4";
+
+        }
+
+
+        try {
+
+            mediaRecorder =
+                mimeType
+                    ? new MediaRecorder(
+                        mediaStream,
+                        {
+                            mimeType: mimeType
+                        }
+                    )
+                    : new MediaRecorder(
+                        mediaStream
+                    );
+
+        }
+        catch (error) {
+
+            console.error(
+                "MediaRecorder error:",
+                error
+            );
+
+            showError(
+                "⚠ Your browser does not support camera recording."
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "Recording format:",
+            mediaRecorder.mimeType
+        );
+
+
+        mediaRecorder.ondataavailable =
+            function(event) {
+
+                if (
+                    event.data &&
+                    event.data.size > 0
+                ) {
+
+                    recordedChunks.push(
+                        event.data
+                    );
+
+                }
+
+            };
+
+
+        mediaRecorder.onerror =
+            function(event) {
+
+                console.error(
+                    "Recording error:",
+                    event.error
+                );
+
+                showError(
+                    "⚠ Camera recording failed."
+                );
+
+            };
+
+
+        mediaRecorder.onstop =
+            function() {
+
+                if (
+                    recordedChunks.length === 0
+                ) {
+
+                    showError(
+                        "⚠ No video data was recorded."
+                    );
+
+                    return;
+
+                }
+
+
+                const actualType =
+                    mediaRecorder.mimeType ||
+                    "video/webm";
+
+
+                const blob =
+                    new Blob(
+                        recordedChunks,
+                        {
+                            type: actualType
+                        }
+                    );
+
+
+                console.log(
+                    "Recorded video type:",
+                    blob.type
+                );
+
+                console.log(
+                    "Recorded video size:",
+                    blob.size
+                );
+
+
+                const videoURL =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+
+                const recordedPreview =
+                    document.getElementById(
+                        "recordedPreview"
+                    );
+
+
+                recordedPreview.src =
+                    videoURL;
+
+                recordedPreview.style.display =
+                    "block";
+
+
+                let extension =
+                    ".webm";
+
+
+                if (
+                    actualType.includes("mp4")
+                ) {
+
+                    extension =
+                        ".mp4";
+
+                }
+
+
+                const file =
+                    new File(
+                        [blob],
+                        "camera_recording" +
+                        extension,
+                        {
+                            type: actualType
+                        }
+                    );
+
+
+                selectedFile =
+                    file;
+
+
+                console.log(
+                    "Camera file:",
+                    selectedFile.name
+                );
+
+
+                document.getElementById(
+                    "recordBtn"
+                ).style.display =
+                    "inline-block";
+
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "video",
+                    selectedFile,
+                    selectedFile.name
+                );
+
+
+                sendVideoToServer(
+                    formData,
+                    "camera"
+                );
+
+            };
+
+
+        mediaRecorder.start(250);
+
+
+        document.getElementById(
+            "recordBtn"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "stopRecordBtn"
+        ).style.display =
+            "inline-block";
+
+
+        hideError();
+
+    }
+
+
+    /* ===================================== */
+    /* STOP RECORDING */
+    /* ===================================== */
+
+    function stopRecording() {
+
+        if (!mediaRecorder) {
+            return;
+        }
+
+
+        if (
+            mediaRecorder.state !==
+            "inactive"
+        ) {
+
+            mediaRecorder.stop();
+
+        }
+
+
+        document.getElementById(
+            "stopRecordBtn"
+        ).style.display =
+            "none";
+
+    }
+
+
+    /* ===================================== */
+    /* VOICE INPUT */
+    /* ===================================== */
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    let recognition = null;
+
+    function startVoiceInput() {
+
+        if (!SpeechRecognition) {
+            alert(
+                "Voice input is not supported in this browser. Please use Google Chrome."
+            );
+            return;
+        }
+
+        const language =
+            document.getElementById("inputLanguage").value;
+
+        const speechLanguages = {
+            english: "en-IN",
+            tamil: "ta-IN",
+            telugu: "te-IN",
+            kannada: "kn-IN",
+            malayalam: "ml-IN",
+            hindi: "hi-IN"
+        };
+
+        recognition =
+            new SpeechRecognition();
+
+        recognition.lang =
+            speechLanguages[language] || "en-IN";
+
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = function () {
+            console.log("Listening...");
+        };
+
+        recognition.onresult = function (event) {
+
+            const text =
+                event.results[0][0].transcript;
+
+            document.getElementById(
+                "wordInput"
+            ).value = text;
+
+            console.log(
+                "Recognized text:",
+                text
+            );
+
+        };
+
+        recognition.onerror = function (event) {
+
+            console.error(
+                "Speech recognition error:",
+                event.error
+            );
+
+            alert(
+                "Could not recognize your voice. Please try again."
+            );
+
+        };
+
+        recognition.onend = function () {
+
+            console.log(
+                "Voice input ended."
+            );
+
+        };
+
+        recognition.start();
+
+    }
+
+
+    /* ===================================== */
+    /* WORD TO SIGN */
+    /* ===================================== */
+
+    async function findSign() {
+
+        const word =
+            document.getElementById(
+                "wordInput"
+            ).value.trim();
+
+
+        const language =
+            document.getElementById(
+                "inputLanguage"
+            ).value;
+
+
+        const error =
+            document.getElementById(
+                "wordSignError"
+            );
+
+
+        const result =
+            document.getElementById(
+                "wordSignResult"
+            );
+
+
+        const videos =
+            document.getElementById(
+                "signVideos"
+            );
+
+
+        error.style.display =
+            "none";
+
+        result.style.display =
+            "none";
+
+        videos.innerHTML =
+            "";
+
+
+        if (!word) {
+
+            error.innerText =
+                "⚠ Please enter a word.";
+
+            error.style.display =
+                "block";
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/word-to-sign",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            word: word,
+                            language: language
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Could not find sign video."
+                );
+
+            }
+
+
+            if (
+                !data.videos ||
+                data.videos.length === 0
+            ) {
+
+                error.innerText =
+                    "⚠ No sign video found for this word.";
+
+                error.style.display =
+                    "block";
+
+                return;
+
+            }
+
+
+            data.videos.forEach(
+                function(videoUrl) {
+
+                    const card =
+                        document.createElement(
+                            "div"
+                        );
+
+                    card.className =
+                        "sign-video-card";
+
+
+                    const title =
+                        document.createElement(
+                            "h4"
+                        );
+
+                    title.innerText =
+                        data.gloss ||
+                        word;
+
+
+                    const videoElement =
+                        document.createElement(
+                            "video"
+                        );
+
+                    videoElement.controls =
+                        true;
+
+                    videoElement.style.width =
+                        "100%";
+
+                    videoElement.style.maxWidth =
+                        "600px";
+
+                    videoElement.src =
+                        videoUrl;
+
+
+                    card.appendChild(
+                        title
+                    );
+
+                    card.appendChild(
+                        videoElement
+                    );
+
+
+                    videos.appendChild(
+                        card
+                    );
+
+                }
+            );
+
+
+            result.style.display =
+                "block";
+
+        }
+        catch (errorObject) {
+
+            console.error(
+                "Word to sign error:",
+                errorObject
+            );
+
+
+            error.innerText =
+                "⚠ " +
+                (
+                    errorObject.message ||
+                    "Could not find sign."
+                );
+
+            error.style.display =
+                "block";
+
+        }
+
+    }
+
+
+    /* ===================================== */
+    /* INITIALIZATION */
+    /* ===================================== */
+
+    window.addEventListener(
+        "beforeunload",
+        function() {
+
+            stopCamera();
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
